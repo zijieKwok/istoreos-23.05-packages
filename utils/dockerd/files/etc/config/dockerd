@@ -18,6 +18,7 @@ config globals 'globals'
 #	list dns '172.17.0.1'
 #	list registry_mirrors 'https://<my-docker-mirror-host>'
 #	list registry_mirrors 'https://hub.docker.com'
+#	option max_concurrent_downloads '2'
 
 # Docker ignores fw3 rules and by default all external source IPs are allowed to connect to the Docker host.
 # See https://docs.docker.com/network/iptables/ for more details.
