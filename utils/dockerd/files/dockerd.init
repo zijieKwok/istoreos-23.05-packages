@@ -184,6 +184,7 @@ process_config() {
 	config_get ip globals ip ""
 	config_get fixed_cidr globals fixed_cidr ""
 	config_get fixed_cidr_v6 globals fixed_cidr_v6 ""
+	config_get max_concurrent_downloads globals max_concurrent_downloads ""
 
 	. /usr/share/libubox/jshn.sh
 	json_init
@@ -205,6 +206,7 @@ process_config() {
 	[ -z "${ip}" ] || json_add_string "ip" "${ip}"
 	[ -z "${fixed_cidr}" ] || json_add_string "fixed-cidr" "${fixed_cidr}"
 	[ -z "${fixed_cidr_v6}" ] || json_add_string "fixed-cidr-v6" "${fixed_cidr_v6}"
+	[ "${max_concurrent_downloads:-0}" -eq "0" ] || json_add_int "max-concurrent-downloads" "${max_concurrent_downloads}"
 	json_dump > "${DOCKERD_CONF}"
 
 	[ "${iptables}" -eq "1" ] && config_foreach iptables_add_blocking_rule firewall
