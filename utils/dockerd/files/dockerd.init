@@ -213,6 +213,9 @@ process_config() {
 	json_dump > "${DOCKERD_CONF}"
 
 	[ "${iptables}" -eq "1" ] && config_foreach iptables_add_blocking_rule firewall
+	[ "${iptables}" -eq "1" ] && iptables --table filter --new DOCKER-USER 2>/dev/null
+	iptables --table filter --delete DOCKER-USER -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT 2>/dev/null
+	iptables --table filter --insert DOCKER-USER -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT 2>/dev/null
 }
 
 start_service() {
