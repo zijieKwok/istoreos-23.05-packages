@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ "$ACTION" = add -a "x$DEVTYPE" = xbridge ]; then
+    if [ "$DEVICENAME" = "docker0" ] || echo "$DEVICENAME" | grep -qE '^br-[0-9a-f]{12}$'; then
+        echo "1" >/sys$DEVPATH/bridge/nf_call_iptables
+        echo "1" >/sys$DEVPATH/bridge/nf_call_ip6tables
+    fi
+fi
