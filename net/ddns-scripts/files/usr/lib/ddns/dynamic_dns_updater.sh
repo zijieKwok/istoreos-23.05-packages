@@ -228,7 +228,12 @@ esac
 [ $DRY_RUN -ge 1 ] && write_log  7 "Dry Run: NOT sending update"
 
 # check enabled state otherwise we don't need to continue
-[ $enabled -eq 0 ] && write_log 14 "Service section disabled!"
+[ $enabled -eq 0 ] && {
+	write_log 4 "Service section disabled!"
+	stop_section_processes "$SECTION_ID"
+	rm -f $PIDFILE
+	write_log 14 "Stopped"
+}
 
 # determine what update url we're using if a service_name is supplied
 # otherwise update_url is set inside configuration (custom update url)
