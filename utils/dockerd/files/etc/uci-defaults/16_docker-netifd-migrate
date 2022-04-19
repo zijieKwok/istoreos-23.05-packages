@@ -1,0 +1,8 @@
+#!/bin/sh
+
+DOCKER0_DEVICE=`uci show network | grep -E "^network\\.@device\\[\\d+\\]\\.name='docker0'" | head -n1 | head -c -16`
+
+if [ -n "$DOCKER0_DEVICE" ]; then
+    uci delete "$DOCKER0_DEVICE"
+    uci commit
+fi
