@@ -48,6 +48,8 @@ uciadd() {
 	local iface="${1}"
 	local device="${2}"
 	local zone="${3}"
+	local netchange="false"
+	local fwchange="false"
 
 	[ -z "${iface}" ] && {
 		iface="docker"
@@ -69,17 +71,7 @@ uciadd() {
 		uci_quiet set network.@interface[-1].proto="none"
 		uci_quiet set network.@interface[-1].auto="0"
 		uci_quiet commit network
-	fi
-
-	# Add docker bridge device
-	if [ "$(find_network_device "$device")" = "" ]; then
-		logger -t "dockerd-init" -p notice "Adding bridge device '${device}' to network config"
-		uci_quiet add network device
-		uci_quiet set network.@device[-1].type="bridge"
-		uci_quiet set network.@device[-1].name="${device}"
-		uci_quiet commit network
-	else
-		logger -t "dockerd-init" -p notice "Bridge device '${device}' already defined in network config"
+		netchange="true"
 	fi
 
 	# Add firewall zone
@@ -92,6 +84,7 @@ uciadd() {
 		uci_quiet set firewall.@zone[-1].forward="ACCEPT"
 		uci_quiet set firewall.@zone[-1].name="${zone}"
 		uci_quiet commit firewall
+		fwchange="true"
 	fi
 
 	# Add interface to firewall zone
@@ -99,9 +92,12 @@ uciadd() {
 		uci_quiet del_list firewall.${zone}.network="${iface}"
 		uci_quiet add_list firewall.${zone}.network="${iface}"
 		uci_quiet commit firewall
+		fwchange="true"
 	fi
 
-	reload_config
+	if $netchange || $fwchange ; then
+		reload_config
+	fi
 }
 
 ucidel() {
