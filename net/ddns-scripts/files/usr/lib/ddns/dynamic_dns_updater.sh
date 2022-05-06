@@ -79,14 +79,14 @@ case "$1" in
 		fi
 		;;
 	stop)
-		if [ -n "$INTERFACE" ]; then
+		if [ -n "$NETWORK" ]; then
 			stop_daemon_for_all_ddns_sections "$NETWORK"
 			exit 0
-		else
+		fi
+		if [ -z "$SECTION_ID" ]; then
 			stop_daemon_for_all_ddns_sections
 			exit 0
 		fi
-		exit 1
 		;;
 	reload)
 		killall -1 dynamic_dns_updater.sh 2>/dev/null
@@ -228,8 +228,8 @@ esac
 [ $DRY_RUN -ge 1 ] && write_log  7 "Dry Run: NOT sending update"
 
 # check enabled state otherwise we don't need to continue
-[ $enabled -eq 0 ] && {
-	write_log 4 "Service section disabled!"
+[ $enabled -eq 0 -o "$1" = "stop" ] && {
+	[ "$1" = "stop" ] || write_log 4 "Service section disabled!"
 	stop_section_processes "$SECTION_ID"
 	rm -f $PIDFILE
 	write_log 14 "Stopped"
