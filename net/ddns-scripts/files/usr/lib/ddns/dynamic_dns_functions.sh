@@ -187,11 +187,13 @@ start_daemon_for_all_ddns_sections()
 	local __SECTIONS=""
 	local __SECTIONID=""
 	local __IFACE=""
+	local __SOURCE=""
 
 	load_all_service_sections __SECTIONS
 	for __SECTIONID in $__SECTIONS; do
+		config_get __SOURCE "$__SECTIONID" ip_source "network"
 		config_get __IFACE "$__SECTIONID" interface "wan"
-		[ -z "$__EVENTIF" -o "$__IFACE" = "$__EVENTIF" ] || continue
+		[ -z "$__EVENTIF" -o "$__IFACE" = "$__EVENTIF" ] || [ "$__SOURCE" = "interface" -a "$DEVICE" = "$__IFACE" ] || continue
 		if [ $VERBOSE -eq 0 ]; then	# start in background
 			/usr/lib/ddns/dynamic_dns_updater.sh -v 0 -S "$__SECTIONID" -- start &
 		else
