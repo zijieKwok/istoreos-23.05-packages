@@ -1,13 +1,6 @@
 /etc/init.d/miniupnpd enabled || exit 0
 
-# If miniupnpd is not running:
-# - check on _any_ event (event updates may contribute to network_find_wan*)
-
-# If miniupnpd _is_ running:
-# - check only on ifup (otherwise lease updates etc would cause
-#   miniupnpd state loss)
-
-[ "$ACTION" != "ifup" ] && /etc/init.d/miniupnpd running && exit 0
+/etc/init.d/miniupnpd running || exit 0
 
 tmpconf="/var/etc/miniupnpd.conf"
 external_iface=$(uci -q get upnpd.config.external_iface)
