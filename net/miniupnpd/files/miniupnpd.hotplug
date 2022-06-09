@@ -1,6 +1,6 @@
 /etc/init.d/miniupnpd enabled || exit 0
 
-/etc/init.d/miniupnpd running || exit 0
+[ "`/etc/init.d/miniupnpd status`" = inactive ] && exit 0
 
 tmpconf="/var/etc/miniupnpd.conf"
 external_iface=$(uci -q get upnpd.config.external_iface)
@@ -32,6 +32,8 @@ fi
 
 [ "$DEVICE" != "$ifname" ] && [ "$DEVICE" != "$ifname6" ] && exit 0
 
-grep -qs "^ext_ifname=$ifname" "$tmpconf" && grep -qs "^ext_ifname6=$ifname6" "$tmpconf" && exit 0
+/etc/init.d/miniupnpd running && grep -qs "^ext_ifname=$ifname" "$tmpconf" && grep -qs "^ext_ifname6=$ifname6" "$tmpconf" && exit 0
+
+logger -t miniupnpd "restart miniupnpd due to $DEVICE up"
 
 /etc/init.d/miniupnpd restart
