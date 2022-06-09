@@ -87,10 +87,11 @@ uciadd() {
 		logger -t "dockerd-init" -p notice "Adding firewall zone '${zone}' to firewall config"
 		uci_quiet add firewall zone
 		uci_quiet rename firewall.@zone[-1]="${zone}"
+		uci_quiet set firewall.@zone[-1].name="${zone}"
 		uci_quiet set firewall.@zone[-1].input="ACCEPT"
 		uci_quiet set firewall.@zone[-1].output="ACCEPT"
 		uci_quiet set firewall.@zone[-1].forward="ACCEPT"
-		uci_quiet set firewall.@zone[-1].name="${zone}"
+		uci_quiet set firewall.@zone[-1].auto_helper="0"
 		uci_quiet commit firewall
 	fi
 
