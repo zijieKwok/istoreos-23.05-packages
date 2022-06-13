@@ -133,6 +133,10 @@ define Package/dockerd/install
 	$(INSTALL_DATA) ./files/etc/hotplug.d/net/br-netfilter \
 		$(1)/etc/hotplug.d/net/10-docker-br-netfilter
 
+	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
+	$(INSTALL_DATA) ./files/etc/hotplug.d/iface/dockerd \
+		$(1)/etc/hotplug.d/iface/21-dockerd
+
 endef
 
 define Package/dockerd/postinst

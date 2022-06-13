@@ -1,0 +1,4 @@
+
+[ "$ACTION" = "ifup" -a -n "$DEVICE" ] || exit 0
+
+/etc/init.d/dockerd running && /etc/init.d/dockerd reload
