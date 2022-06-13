@@ -89,15 +89,16 @@ uciadd() {
 	fi
 
 	# Add interface to firewall zone
-	if uci_quiet get firewall.${zone}; then
-		uci_quiet del_list firewall.${zone}.network="${iface}"
+	if ! uci -q get firewall.${zone}.network | grep -qFw "${iface}"; then
 		uci_quiet add_list firewall.${zone}.network="${iface}"
 		uci_quiet commit firewall
 		fwchange="true"
 	fi
 
-	if $netchange || $fwchange ; then
-		reload_config
+	if $netchange ; then
+		/etc/init.d/network reload
+	elif $fwchange ; then
+		/etc/init.d/firewall reload
 	fi
 }
 
@@ -209,7 +210,39 @@ process_config() {
 	json_close_object
 	json_dump > "${DOCKERD_CONF}"
 
-	[ "${iptables}" -eq "1" ] && config_foreach iptables_add_blocking_rule firewall
+	if [ "${iptables}" -eq "1" ]; then
+		iptables_refresh
+	fi
+}
+
+process_config_hotplug() {
+	local alt_config_file iptables
+	[ -f /etc/config/dockerd ] || {
+		return 0
+	}
+
+	config_load 'dockerd'
+	config_get alt_config_file globals alt_config_file
+	[ -n "${alt_config_file}" ] && [ -f "${alt_config_file}" ] && {
+		return 0
+	}
+	config_get_bool iptables globals iptables "1"
+	if [ "${iptables}" -eq "1" ]; then
+		iptables_refresh
+	fi
+}
+
+iptables_refresh() {
+	# Wait for a maximum of 10 second per command, retrying every millisecond
+	iptables_wait_args="--wait 10 --wait-interval 1000"
+
+	iptables ${iptables_wait_args} --table filter --new DOCKER-BLOCKED 2>/dev/null
+	[ -z "$DEVICE" ] && iptables ${iptables_wait_args} --table filter --flush DOCKER-BLOCKED
+	. /lib/functions/network.sh
+	config_foreach iptables_add_blocking_rule firewall
+	if ! iptables ${iptables_wait_args} --table filter --check DOCKER-USER --jump DOCKER-BLOCKED 2>/dev/null; then
+		iptables ${iptables_wait_args} --table filter --insert DOCKER-USER --jump DOCKER-BLOCKED
+	fi
 }
 
 start_service() {
@@ -229,6 +262,10 @@ start_service() {
 }
 
 reload_service() {
+	if [ -n "$DEVICE" ]; then
+		process_config_hotplug
+		return 0
+	fi
 	if [ -f "${DOCKERD_CONF}" -a -f /etc/config/dockerd ]; then
 		local oldroot=`jsonfilter -i "${DOCKERD_CONF}" -e @[\"data-root\"]`
 		local newroot=`uci get dockerd.globals.data_root`
@@ -258,22 +295,20 @@ iptables_add_blocking_rule() {
 
 		local inbound=""
 
-		. /lib/functions/network.sh
-		network_get_physdev inbound "${interface}"
+		network_get_device inbound "${interface}"
+
+		[ -n "$DEVICE" -a "$DEVICE" != "${inbound}" ] && return
 
 		[ -z "${inbound}" ] && {
 			logger -t "dockerd-init" -p notice "Unable to get physical device for interface ${interface}"
 			return
 		}
 
-		# Wait for a maximum of 10 second per command, retrying every millisecond
-		local iptables_wait_args="--wait 10 --wait-interval 1000"
-
 		# Ignore errors as it might already be present
-		iptables ${iptables_wait_args} --table filter --new DOCKER-USER 2>/dev/null
-		if ! iptables ${iptables_wait_args} --table filter --check DOCKER-USER --in-interface "${inbound}" --out-interface "${outbound}" ${extra_iptables_args} --jump REJECT 2>/dev/null; then
+		iptables ${iptables_wait_args} --table filter --new DOCKER-BLOCKED 2>/dev/null
+		if ! iptables ${iptables_wait_args} --table filter --check DOCKER-BLOCKED --in-interface "${inbound}" --out-interface "${outbound}" ${extra_iptables_args} --jump REJECT 2>/dev/null; then
 			logger -t "dockerd-init" -p notice "Drop traffic from ${inbound} to ${outbound}"
-			iptables ${iptables_wait_args} --table filter --insert DOCKER-USER --in-interface "${inbound}" --out-interface "${outbound}" ${extra_iptables_args} --jump REJECT
+			iptables ${iptables_wait_args} --table filter --insert DOCKER-BLOCKED --in-interface "${inbound}" --out-interface "${outbound}" ${extra_iptables_args} --jump REJECT
 		fi
 	}
 
