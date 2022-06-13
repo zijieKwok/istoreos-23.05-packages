@@ -192,6 +192,8 @@ upnpd() {
 }
 
 stop_service() {
+	[ -z "$DEVICE" ] || return 0
+
 	iptables -t nat -F MINIUPNPD 2>/dev/null
 	iptables -t nat -F MINIUPNPD-POSTROUTING 2>/dev/null
 	iptables -t filter -F MINIUPNPD 2>/dev/null

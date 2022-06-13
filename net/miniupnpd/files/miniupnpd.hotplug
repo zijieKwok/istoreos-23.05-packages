@@ -1,3 +1,5 @@
+[ "$ACTION" = "ifup" -a -n "$DEVICE" ] || exit 0
+
 /etc/init.d/miniupnpd enabled || exit 0
 
 [ "`/etc/init.d/miniupnpd status`" = inactive ] && exit 0
@@ -32,7 +34,7 @@ fi
 
 [ "$DEVICE" != "$ifname" ] && [ "$DEVICE" != "$ifname6" ] && exit 0
 
-/etc/init.d/miniupnpd running && grep -qs "^ext_ifname=$ifname" "$tmpconf" && grep -qs "^ext_ifname6=$ifname6" "$tmpconf" && exit 0
+# /etc/init.d/miniupnpd running && grep -qs "^ext_ifname=$ifname" "$tmpconf" && grep -qs "^ext_ifname6=$ifname6" "$tmpconf" && exit 0
 
 logger -t miniupnpd "restart miniupnpd due to $DEVICE up"
 
