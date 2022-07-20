@@ -258,6 +258,7 @@ start_service() {
 		procd_set_param command /usr/bin/dockerd --config-file="${DOCKERD_CONF}"
 	fi
 	procd_set_param limits nofile="${nofile} ${nofile}"
+	procd_set_param respawn
 	procd_close_instance
 }
 
