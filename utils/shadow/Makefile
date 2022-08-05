@@ -82,7 +82,6 @@ define Package/shadow-utils/config
     config shadow-all
       bool "Include all PLD shadow utilities"
       select PACKAGE_shadow
-      default y
 
     comment "Utilities"
 
@@ -132,7 +131,7 @@ define Package/shadow-common/install
 	$(INSTALL_DIR) $(1)/etc
 	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/login.defs $(1)/etc/
 	$(SED) 's,SU_NAME,#SU_NAME,g' $(1)/etc/login.defs
-	$(SED) 's,#ENCRYPT_METHOD DES,ENCRYPT_METHOD BCRYPT,g' $(1)/etc/login.defs
+	$(SED) 's,#ENCRYPT_METHOD DES,ENCRYPT_METHOD MD5,g' $(1)/etc/login.defs
 endef
 
 define Package/shadow-utils/install
