@@ -313,7 +313,7 @@ $(call Package/ffmpeg/Default)
  SECTION:=multimedia
  CATEGORY:=Multimedia
  TITLE+= program (remux)
- DEPENDS+= @!ALL libffmpeg-remux
+ DEPENDS+= +zlib +libbz2
  VARIANT:=remux
 endef
 
@@ -429,19 +429,6 @@ define Package/libffmpeg-mini/description
 $(call Package/ffmpeg/Default/description)
  .
  This package contains minimal-featured FFmpeg shared libraries.
-endef
-
-define Package/libffmpeg-remux
-$(call Package/libffmpeg/Default)
- TITLE+= (remux)
- PROVIDES:=
- VARIANT:=remux
-endef
-
-define Package/libffmpeg-remux/description
-$(call Package/ffmpeg/Default/description)
- .
- This package contains FFmpeg shared libraries for remux.
 endef
 
 # Strip off FPU notation
@@ -698,11 +685,6 @@ ifeq ($(BUILD_VARIANT),mini)
 endif
 
 ifeq ($(BUILD_VARIANT),remux)
-  RSTRIP= \
-    CROSS="$(TARGET_CROSS)" \
-    NM="$(TARGET_CROSS)nm" \
-    STRIP="$(STRIP)" \
-    $(SCRIPT_DIR)/rstrip.sh
 
   FFMPEG_ENABLE= \
 	$(foreach c, $(2), \
@@ -712,7 +694,7 @@ ifeq ($(BUILD_VARIANT),remux)
   FFMPEG_CONFIGURE+= \
 	--enable-small \
 	--disable-static \
-	--libdir="/usr/libexec/remux" \
+	--libdir="/usr/lib/remux" \
 	--enable-rpath \
 	\
 	--disable-ffplay \
@@ -827,7 +809,9 @@ endef
 Package/ffmpeg-custom/install = $(Package/ffmpeg/install)
 
 define Package/ffmpeg-remux/install
+	$(INSTALL_DIR) $(1)/usr/lib/remux
 	$(INSTALL_DIR) $(1)/usr/bin
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/remux/lib{avcodec,avfilter,avformat,avutil}.so.* $(1)/usr/lib/remux/
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/ffmpeg $(1)/usr/bin/remux
 endef
 
@@ -863,11 +847,6 @@ define Package/libffmpeg-mini/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/lib{avcodec,avformat,avutil}.so.* $(1)/usr/lib/
 endef
 
-define Package/libffmpeg-remux/install
-	$(INSTALL_DIR) $(1)/usr/libexec/remux
-	$(CP) $(PKG_INSTALL_DIR)/usr/libexec/remux/lib{avcodec,avfilter,avformat,avutil}.so.* $(1)/usr/libexec/remux/
-endef
-
 Package/libffmpeg-audio-dec/install = $(Package/libffmpeg-custom/install)
 
 $(eval $(call BuildPackage,ffmpeg))
@@ -879,4 +858,3 @@ $(eval $(call BuildPackage,libffmpeg-audio-dec))
 $(eval $(call BuildPackage,libffmpeg-full))
 $(eval $(call BuildPackage,libffmpeg-mini))
 $(eval $(call BuildPackage,libffmpeg-custom))
-$(eval $(call BuildPackage,libffmpeg-remux))
