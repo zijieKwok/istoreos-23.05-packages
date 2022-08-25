@@ -345,15 +345,6 @@ $(call Package/ffmpeg/Default)
  VARIANT:=custom
 endef
 
-define Package/ffprobe-remux
-$(call Package/ffmpeg/Default)
- SECTION:=multimedia
- CATEGORY:=Multimedia
- TITLE+= CLI media identifier (remux)
- DEPENDS+= @!ALL libffmpeg-remux
- VARIANT:=remux
-endef
-
 define Package/ffprobe/description
 $(call Package/ffmpeg/Default/description)
  .
@@ -361,8 +352,6 @@ $(call Package/ffmpeg/Default/description)
 endef
 
 Package/ffprobe-custom/description = $(Package/ffprobe/description)
-
-Package/ffprobe-remux/description = $(Package/ffprobe/description)
 
 define Package/libffmpeg/Default
 $(call Package/ffmpeg/Default)
@@ -445,6 +434,7 @@ endef
 define Package/libffmpeg-remux
 $(call Package/libffmpeg/Default)
  TITLE+= (remux)
+ PROVIDES:=
  VARIANT:=remux
 endef
 
@@ -471,7 +461,6 @@ FFMPEG_CONFIGURE:= \
 	--prefix="/usr" \
 	--pkg-config="pkg-config" \
 	--enable-shared \
-	--enable-static \
 	--enable-pthreads \
 	--enable-zlib \
 	--disable-doc \
@@ -481,6 +470,11 @@ FFMPEG_CONFIGURE:= \
 	--disable-vaapi \
 	--disable-vdpau \
 	--disable-outdevs
+
+ifneq ($(BUILD_VARIANT),remux)
+FFMPEG_CONFIGURE+= \
+	--enable-static
+endif
 
 ifeq ($(CONFIG_SOFT_FLOAT),y)
 FFMPEG_CONFIGURE+= \
@@ -704,6 +698,11 @@ ifeq ($(BUILD_VARIANT),mini)
 endif
 
 ifeq ($(BUILD_VARIANT),remux)
+  RSTRIP= \
+    CROSS="$(TARGET_CROSS)" \
+    NM="$(TARGET_CROSS)nm" \
+    STRIP="$(STRIP)" \
+    $(SCRIPT_DIR)/rstrip.sh
 
   FFMPEG_ENABLE= \
 	$(foreach c, $(2), \
@@ -712,8 +711,19 @@ ifeq ($(BUILD_VARIANT),remux)
 
   FFMPEG_CONFIGURE+= \
 	--enable-small \
+	--disable-static \
+	--libdir="/usr/libexec/remux" \
+	--enable-rpath \
 	\
 	--disable-ffplay \
+	--disable-alsa \
+	--disable-iconv \
+	--disable-sndio \
+	--disable-schannel \
+	--disable-sdl2 \
+	--disable-securetransport \
+	--disable-xlib \
+	--disable-v4l2-m2m \
 	--disable-avdevice \
 	--disable-postproc \
 	--disable-swresample \
@@ -816,7 +826,10 @@ endef
 
 Package/ffmpeg-custom/install = $(Package/ffmpeg/install)
 
-Package/ffmpeg-remux/install = $(Package/ffmpeg/install)
+define Package/ffmpeg-remux/install
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(CP) $(PKG_INSTALL_DIR)/usr/bin/ffmpeg $(1)/usr/bin/remux
+endef
 
 define Package/ffprobe/install
 	$(INSTALL_DIR) $(1)/usr/bin
@@ -824,8 +837,6 @@ define Package/ffprobe/install
 endef
 
 Package/ffprobe-custom/install = $(Package/ffprobe/install)
-
-Package/ffprobe-remux/install = $(Package/ffprobe/install)
 
 define Package/libffmpeg-custom/install
 	$(INSTALL_DIR) $(1)/usr/lib
@@ -853,8 +864,8 @@ define Package/libffmpeg-mini/install
 endef
 
 define Package/libffmpeg-remux/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/lib{avcodec,avfilter,avformat,avutil}.so.* $(1)/usr/lib/
+	$(INSTALL_DIR) $(1)/usr/libexec/remux
+	$(CP) $(PKG_INSTALL_DIR)/usr/libexec/remux/lib{avcodec,avfilter,avformat,avutil}.so.* $(1)/usr/libexec/remux/
 endef
 
 Package/libffmpeg-audio-dec/install = $(Package/libffmpeg-custom/install)
@@ -864,7 +875,6 @@ $(eval $(call BuildPackage,ffprobe))
 $(eval $(call BuildPackage,ffmpeg-custom))
 $(eval $(call BuildPackage,ffprobe-custom))
 $(eval $(call BuildPackage,ffmpeg-remux))
-$(eval $(call BuildPackage,ffprobe-remux))
 $(eval $(call BuildPackage,libffmpeg-audio-dec))
 $(eval $(call BuildPackage,libffmpeg-full))
 $(eval $(call BuildPackage,libffmpeg-mini))
