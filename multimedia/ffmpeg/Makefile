@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ffmpeg
 PKG_VERSION:=4.3.3
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://ffmpeg.org/releases/
@@ -153,6 +153,55 @@ FFMPEG_MINI_DEMUXERS:= \
 FFMPEG_MINI_PROTOCOLS:= \
 	file
 
+FFMPEG_REMUX_DECODERS:= \
+	mpeg1video \
+	mpeg2video \
+	mpeg4 \
+	mpegvideo \
+
+FFMPEG_PATENTED_REMUX_DECODERS:= \
+	h264 \
+	hevc \
+	vc1 \
+
+FFMPEG_REMUX_MUXERS:= \
+	matroska \
+	h264 \
+	hevc \
+	mp4 \
+	mpeg1video \
+	mpeg2video \
+	mpegts \
+	ogg \
+
+FFMPEG_REMUX_DEMUXERS:= \
+	avi \
+	h264 \
+	hevc \
+	matroska \
+	mov \
+	mpegps \
+	mpegts \
+	mpegvideo \
+	ogg \
+	rm \
+	vc1 \
+	wv \
+
+FFMPEG_REMUX_PARSERS:= \
+	aac \
+	flac \
+	ac3 \
+	h264 \
+	hevc \
+	mpegaudio \
+	mpeg4video \
+	mpegvideo \
+	vc1 \
+
+FFMPEG_REMUX_PROTOCOLS:= \
+	file pipe
+
 FFMPEG_AUDIO_DECODERS:= \
 	ac3 \
 	adpcm_* \
@@ -259,6 +308,15 @@ $(call Package/ffmpeg/Default)
  VARIANT:=custom
 endef
 
+define Package/ffmpeg-remux
+$(call Package/ffmpeg/Default)
+ SECTION:=multimedia
+ CATEGORY:=Multimedia
+ TITLE+= program (remux)
+ DEPENDS+= @!ALL libffmpeg-remux
+ VARIANT:=remux
+endef
+
 define Package/ffmpeg/description
 $(call Package/ffmpeg/Default/description)
  .
@@ -266,6 +324,8 @@ $(call Package/ffmpeg/Default/description)
 endef
 
 Package/ffmpeg-custom/description = $(Package/ffmpeg/description)
+
+Package/ffmpeg-remux/description = $(Package/ffmpeg/description)
 
 define Package/ffprobe
 $(call Package/ffmpeg/Default)
@@ -285,6 +345,15 @@ $(call Package/ffmpeg/Default)
  VARIANT:=custom
 endef
 
+define Package/ffprobe-remux
+$(call Package/ffmpeg/Default)
+ SECTION:=multimedia
+ CATEGORY:=Multimedia
+ TITLE+= CLI media identifier (remux)
+ DEPENDS+= @!ALL libffmpeg-remux
+ VARIANT:=remux
+endef
+
 define Package/ffprobe/description
 $(call Package/ffmpeg/Default/description)
  .
@@ -292,6 +361,8 @@ $(call Package/ffmpeg/Default/description)
 endef
 
 Package/ffprobe-custom/description = $(Package/ffprobe/description)
+
+Package/ffprobe-remux/description = $(Package/ffprobe/description)
 
 define Package/libffmpeg/Default
 $(call Package/ffmpeg/Default)
@@ -371,6 +442,17 @@ $(call Package/ffmpeg/Default/description)
  This package contains minimal-featured FFmpeg shared libraries.
 endef
 
+define Package/libffmpeg-remux
+$(call Package/libffmpeg/Default)
+ TITLE+= (remux)
+ VARIANT:=remux
+endef
+
+define Package/libffmpeg-remux/description
+$(call Package/ffmpeg/Default/description)
+ .
+ This package contains FFmpeg shared libraries for remux.
+endef
 
 # Strip off FPU notation
 REAL_CPU_TYPE:=$(firstword $(subst +, ,$(CONFIG_CPU_TYPE)))
@@ -621,6 +703,31 @@ ifeq ($(BUILD_VARIANT),mini)
 		$(call FFMPEG_ENABLE,decoder,$(FFMPEG_PATENTED_MINI_DECODERS)))
 endif
 
+ifeq ($(BUILD_VARIANT),remux)
+
+  FFMPEG_ENABLE= \
+	$(foreach c, $(2), \
+		--enable-$(1)="$(c)" \
+	)
+
+  FFMPEG_CONFIGURE+= \
+	--enable-small \
+	\
+	--disable-ffplay \
+	--disable-avdevice \
+	--disable-postproc \
+	--disable-swresample \
+	--disable-swscale \
+	--disable-everything \
+	$(call FFMPEG_ENABLE,decoder,$(FFMPEG_REMUX_DECODERS)) \
+	$(call FFMPEG_ENABLE,parser,$(FFMPEG_REMUX_PARSERS)) \
+	$(call FFMPEG_ENABLE,demuxer,$(FFMPEG_REMUX_DEMUXERS)) \
+	$(call FFMPEG_ENABLE,muxer,$(FFMPEG_REMUX_MUXERS)) \
+	$(call FFMPEG_ENABLE,protocol,$(FFMPEG_REMUX_PROTOCOLS)) \
+	$(if $(CONFIG_BUILD_PATENTED), \
+		$(call FFMPEG_ENABLE,decoder,$(FFMPEG_PATENTED_REMUX_DECODERS)))
+endif
+
 ifneq ($(CONFIG_TARGET_x86),)
   TARGET_CFLAGS+= -fomit-frame-pointer
 endif
@@ -709,12 +816,16 @@ endef
 
 Package/ffmpeg-custom/install = $(Package/ffmpeg/install)
 
+Package/ffmpeg-remux/install = $(Package/ffmpeg/install)
+
 define Package/ffprobe/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/ffprobe $(1)/usr/bin/
 endef
 
 Package/ffprobe-custom/install = $(Package/ffprobe/install)
+
+Package/ffprobe-remux/install = $(Package/ffprobe/install)
 
 define Package/libffmpeg-custom/install
 	$(INSTALL_DIR) $(1)/usr/lib
@@ -741,13 +852,21 @@ define Package/libffmpeg-mini/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/lib{avcodec,avformat,avutil}.so.* $(1)/usr/lib/
 endef
 
+define Package/libffmpeg-remux/install
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/lib{avcodec,avfilter,avformat,avutil}.so.* $(1)/usr/lib/
+endef
+
 Package/libffmpeg-audio-dec/install = $(Package/libffmpeg-custom/install)
 
 $(eval $(call BuildPackage,ffmpeg))
 $(eval $(call BuildPackage,ffprobe))
 $(eval $(call BuildPackage,ffmpeg-custom))
 $(eval $(call BuildPackage,ffprobe-custom))
+$(eval $(call BuildPackage,ffmpeg-remux))
+$(eval $(call BuildPackage,ffprobe-remux))
 $(eval $(call BuildPackage,libffmpeg-audio-dec))
 $(eval $(call BuildPackage,libffmpeg-full))
 $(eval $(call BuildPackage,libffmpeg-mini))
 $(eval $(call BuildPackage,libffmpeg-custom))
+$(eval $(call BuildPackage,libffmpeg-remux))
