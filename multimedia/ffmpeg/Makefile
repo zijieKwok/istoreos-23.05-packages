@@ -692,7 +692,7 @@ ifeq ($(BUILD_VARIANT),remux)
 	)
 
   FFMPEG_CONFIGURE+= \
-	--enable-small \
+	--enable-hardcoded-tables \
 	--disable-static \
 	--libdir="/usr/lib/remux" \
 	--enable-rpath \
