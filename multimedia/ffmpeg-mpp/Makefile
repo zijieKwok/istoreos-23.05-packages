@@ -8,14 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ffmpeg-mpp
-PKG_VERSION:=4.4.git
-PKG_RELEASE:=2
+PKG_VERSION:=4.4.git-2022-11-20
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_VERSION:=09d6349bebc4f4f92cbf5fa274f65d1cf521082b
+PKG_SOURCE_VERSION:=f6598a13b3e957c6162a90d9fb18d7af028923f7
 PKG_SOURCE_URL_FILE:=$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/jjm2473/ffmpeg-rk/archive/
-PKG_HASH:=1a9bdad3db02bcfc7af2df4c961089e960ff8bcdc84400cc34f0af766261466f
+PKG_HASH:=59095b2322bc448b111b968fb12317fddc8b1107b1b1bb2628b0a428f69c5d65
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
@@ -149,9 +149,6 @@ FFMPEG_CONFIGURE+= \
 	--disable-fast-unaligned \
 	--disable-runtime-cpudetect
 
-else ifneq ($(findstring arm,$(CONFIG_ARCH))$(findstring aarch64,$(CONFIG_ARCH)),)
-FFMPEG_CONFIGURE+= \
-	--disable-runtime-cpudetect
 # XXX: GitHub issue 3320 ppc cpu with fpu but no altivec (WNDR4700)
 else ifneq ($(findstring powerpc,$(CONFIG_ARCH)),)
 FFMPEG_CONFIGURE+= \
@@ -202,11 +199,7 @@ FFMPEG_CONFIGURE+= \
 	\
 	$(if $(CONFIG_PACKAGE_shine),--enable-libshine)
 else
-ifeq ($(ARCH),x86_64)
-	FFMPEG_CONFIGURE+= --enable-hardcoded-tables
-else
-	FFMPEG_CONFIGURE+= --enable-small
-endif
+FFMPEG_CONFIGURE+= --enable-hardcoded-tables
 FFMPEG_CONFIGURE+= $(if $(CONFIG_PACKAGE_lame-lib),--enable-libmp3lame)
 endif
 
