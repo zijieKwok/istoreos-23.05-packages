@@ -8,14 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ffmpeg-mpp
-PKG_VERSION:=4.4.git-2022-11-20
+PKG_VERSION:=4.4.git-2022-11-23
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_VERSION:=f6598a13b3e957c6162a90d9fb18d7af028923f7
+PKG_SOURCE_VERSION:=e26aa1d3b20f0f5e15506f96b0d1425c3e2f6a85
 PKG_SOURCE_URL_FILE:=$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/jjm2473/ffmpeg-rk/archive/
-PKG_HASH:=59095b2322bc448b111b968fb12317fddc8b1107b1b1bb2628b0a428f69c5d65
+PKG_HASH:=f0970afc2e1719ed154870be603333ea4422865f02557d67e679f2767ef1f28e
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
@@ -256,6 +256,7 @@ endef
 define Package/ffmpeg-mpp/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/ffmpeg $(1)/usr/bin/
+	$(CP) $(PKG_INSTALL_DIR)/usr/bin/ffmpeg_wrap $(1)/usr/bin/
 endef
 
 define Package/ffprobe-mpp/install
