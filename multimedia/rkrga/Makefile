@@ -49,9 +49,8 @@ endef
 
 CMAKE_OPTIONS += -DCMAKE_BUILD_TYPE=Release \
 	-DCMAKE_BUILD_TARGET=cmake_linux \
-	-DBUILD_WITH_LIBDRM=true
-
-TARGET_CFLAGS+= -I$(STAGING_DIR)/usr/include/libdrm
+	-DBUILD_WITH_LIBDRM=true \
+	-DLIBDRM_FILE_INCLUDE=$(STAGING_DIR)/usr/include
 
 define Build/Prepare
 	rm -rf $(PKG_BUILD_DIR)/
