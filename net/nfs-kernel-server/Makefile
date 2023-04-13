@@ -8,7 +8,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=nfs-kernel-server
 PKG_VERSION:=2.6.2
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 PKG_HASH:=26d46448982252e9e2c8346d10cf13e1143e7089c866f53e25db3359f3e9493c
 
 PKG_SOURCE_URL:=@SF/nfs
@@ -204,6 +204,11 @@ define Package/nfs-utils/install
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/sbin/mount.nfs $(1)/sbin/
 	(cd $(1)/sbin; ln -sf mount.nfs mount.nfs4; ln -sf mount.nfs umount.nfs; ln -sf mount.nfs umount.nfs4)
+	$(INSTALL_DIR) $(1)/sbin/fs
+	$(LN) /sbin/mount.nfs $(1)/sbin/fs/mount.nfs
+	$(LN) /sbin/mount.nfs $(1)/sbin/fs/umount.nfs
+	$(LN) /sbin/mount.nfs $(1)/sbin/fs/mount.nfs4
+	$(LN) /sbin/mount.nfs $(1)/sbin/fs/umount.nfs4
 endef
 
 define Package/nfs-utils-libs/install
