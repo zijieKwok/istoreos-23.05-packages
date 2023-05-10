@@ -14,7 +14,7 @@ PKG_RELEASE:=11
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_VERSION:=1e2f0dbb838de3512a8a29143196d7b5e460e1ca
 PKG_SOURCE_URL_FILE:=$(PKG_SOURCE_VERSION).tar.gz
-PKG_SOURCE_URL:=https://github.com/JeffyCN/rockchip_mirrors/archive/
+PKG_SOURCE_URL:=https://github.com/JeffyCN/mirrors/archive/
 PKG_HASH:=5fd33d0df4b908830c36b3501cf1cc79c2a43b73dd9c744edd299982fb0dddc3
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
@@ -27,7 +27,7 @@ define Package/rkrga
   CATEGORY:=Multimedia
   TITLE:=Rockchip RGA
   DEPENDS:=@aarch64 +libstdcpp +libdrm
-  URL:=https://github.com/JeffyCN/rockchip_mirrors/tree/linux-rga
+  URL:=https://github.com/JeffyCN/mirrors/tree/linux-rga-im2d
 endef
 
 define Package/rkrga/description

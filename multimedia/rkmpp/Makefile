@@ -14,7 +14,7 @@ PKG_RELEASE:=2
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_VERSION:=ee6f5b3374e45fc4b1689ea8230f445350d4634d
 PKG_SOURCE_URL_FILE:=$(PKG_SOURCE_VERSION).tar.gz
-PKG_SOURCE_URL:=https://github.com/JeffyCN/rockchip_mirrors/archive/
+PKG_SOURCE_URL:=https://github.com/JeffyCN/mirrors/archive/
 PKG_HASH:=5e6d2b10043f2f8680d37a74655d2ef25decdc483d7e042846351e5fefbc3326
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
@@ -27,7 +27,7 @@ define Package/rkmpp
   CATEGORY:=Multimedia
   TITLE:=Rockchip MPP
   DEPENDS:=@aarch64 +libstdcpp
-  URL:=https://github.com/JeffyCN/rockchip_mirrors/tree/mpp
+  URL:=https://github.com/JeffyCN/mirrors/tree/mpp-dev
 endef
 
 define Package/rkmpp/description
