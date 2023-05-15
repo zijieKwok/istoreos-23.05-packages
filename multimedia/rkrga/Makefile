@@ -65,8 +65,10 @@ define Package/rkrga/install
 endef
 
 define Package/rkrga-demo/install
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(CP) $(PKG_INSTALL_DIR)/usr/bin/rgaImDemo $(1)/usr/bin/
+	$(INSTALL_DIR) $(1)/usr/bin $(1)/usr/data
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/rgaImDemo $(1)/usr/bin/
+	$(CP) $(PKG_BUILD_DIR)/samples/sample_file/in0w1280-h720-rgba8888.bin $(1)/usr/data/
+	$(CP) $(PKG_BUILD_DIR)/samples/sample_file/in1w1280-h720-rgba8888.bin $(1)/usr/data/
 endef
 
 define Build/InstallDev
