@@ -1,10 +1,12 @@
---- rkrga-1.3.1.orig/include/drmrga.h
-+++ rkrga-1.3.1/include/drmrga.h
-@@ -20,7 +20,6 @@
+--- a/include/drmrga.h
++++ b/include/drmrga.h
+@@ -20,9 +20,8 @@
  #define _rk_drm_rga_
  
  #include <stdint.h>
+ #include <errno.h>
 -#include <sys/cdefs.h>
  
+ #include "rga.h"
+ 
  #ifdef ANDROID
- #define DRMRGA_HARDWARE_MODULE_ID "librga"

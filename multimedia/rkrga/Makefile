@@ -8,14 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rkrga
-PKG_VERSION:=1.3.1
-PKG_RELEASE:=11
+PKG_VERSION:=1.9.1
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_VERSION:=1e2f0dbb838de3512a8a29143196d7b5e460e1ca
+PKG_SOURCE_VERSION:=039967ece0d41e67310ce88fb354dce6f64f38a7
 PKG_SOURCE_URL_FILE:=$(PKG_SOURCE_VERSION).tar.gz
-PKG_SOURCE_URL:=https://github.com/JeffyCN/mirrors/archive/
-PKG_HASH:=5fd33d0df4b908830c36b3501cf1cc79c2a43b73dd9c744edd299982fb0dddc3
+PKG_SOURCE_URL:=https://github.com/jjm2473/librga/archive/
+PKG_HASH:=2e0f244c113223c7abb737190264d663f1a285500d61c847ead9921d97f26a76
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
@@ -27,7 +27,7 @@ define Package/rkrga
   CATEGORY:=Multimedia
   TITLE:=Rockchip RGA
   DEPENDS:=@aarch64 +libstdcpp +libdrm
-  URL:=https://github.com/JeffyCN/mirrors/tree/linux-rga-im2d
+  URL:=https://github.com/jjm2473/librga
 endef
 
 define Package/rkrga/description
@@ -48,9 +48,7 @@ This package provides the demo.
 endef
 
 CMAKE_OPTIONS += -DCMAKE_BUILD_TYPE=Release \
-	-DCMAKE_BUILD_TARGET=cmake_linux \
-	-DBUILD_WITH_LIBDRM=true \
-	-DLIBDRM_FILE_INCLUDE=$(STAGING_DIR)/usr/include
+	-DCMAKE_BUILD_TARGET=cmake_linux
 
 define Build/Prepare
 	rm -rf $(PKG_BUILD_DIR)/
