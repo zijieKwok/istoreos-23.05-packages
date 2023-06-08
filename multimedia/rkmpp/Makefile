@@ -22,6 +22,9 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 
+TAR_OPTIONS:=--strip-components 1 $(TAR_OPTIONS)
+TAR_CMD=$(HOST_TAR) -C $(1) $(TAR_OPTIONS)
+
 define Package/rkmpp
   SECTION:=multimedia
   CATEGORY:=Multimedia
@@ -33,7 +36,6 @@ endef
 define Package/rkmpp/description
  Rockchip Media Process Platform (MPP)
 endef
-
 
 define Package/rkmpp-demo
 $(call Package/rkmpp)
@@ -49,13 +51,6 @@ endef
 
 CMAKE_OPTIONS += -DCMAKE_BUILD_TYPE=Release \
 	-DHAVE_DRM=ON
-
-define Build/Prepare
-	rm -rf $(PKG_BUILD_DIR)/
-	mkdir -p $(PKG_BUILD_DIR)/
-	$(TAR) -xzf $(DL_DIR)/$(PKG_SOURCE) -C $(PKG_BUILD_DIR) --strip-components=1
-	$(Build/Patch)
-endef
 
 define Package/rkmpp/install
 	$(INSTALL_DIR) $(1)/usr/lib

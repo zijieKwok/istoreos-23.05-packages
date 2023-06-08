@@ -8,14 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ffmpeg-mpp
-PKG_VERSION:=4.4.git-2022-11-23
+PKG_VERSION:=4.4.git-2023-06-08
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_VERSION:=e26aa1d3b20f0f5e15506f96b0d1425c3e2f6a85
+PKG_SOURCE_VERSION:=4dbf181c5607a110b88ad639cfdf237d9b2862e5
 PKG_SOURCE_URL_FILE:=$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/jjm2473/ffmpeg-rk/archive/
-PKG_HASH:=f0970afc2e1719ed154870be603333ea4422865f02557d67e679f2767ef1f28e
+PKG_HASH:=7838a66cd26e3d658f13635124b634824bf35f4722166ddadde00704668e263e
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
@@ -38,6 +38,9 @@ FFMPEG_PATENTED_PARSERS:= \
 	vc1 \
 
 include $(INCLUDE_DIR)/package.mk
+
+TAR_OPTIONS:=--strip-components 1 $(TAR_OPTIONS)
+TAR_CMD=$(HOST_TAR) -C $(1) $(TAR_OPTIONS)
 
 define Package/ffmpeg/Default
  TITLE:=FFmpeg for rockchip SoC
@@ -223,13 +226,6 @@ endif
 ifneq ($(CONFIG_TARGET_x86),)
   TARGET_CFLAGS+= -fomit-frame-pointer
 endif
-
-define Build/Prepare
-	rm -rf $(PKG_BUILD_DIR)/
-	mkdir -p $(PKG_BUILD_DIR)/
-	$(TAR) -xzf $(DL_DIR)/$(PKG_SOURCE) -C $(PKG_BUILD_DIR) --strip-components=1
-	$(Build/Patch)
-endef
 
 define Build/Configure
 	( cd $(PKG_BUILD_DIR); $(FFMPEG_CONFIGURE) )
