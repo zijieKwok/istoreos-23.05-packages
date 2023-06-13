@@ -37,6 +37,9 @@ FFMPEG_PATENTED_PARSERS:= \
 	hevc \
 	vc1 \
 
+FFMPEG_BLACKLIST_ENCODERS:= \
+	svq1 \
+
 include $(INCLUDE_DIR)/package.mk
 
 TAR_OPTIONS:=--strip-components 1 $(TAR_OPTIONS)
@@ -192,6 +195,7 @@ $(foreach c, $(2), \
 
 FFMPEG_CONFIGURE+= \
 	--enable-gnutls \
+	$(call FFMPEG_DISABLE,encoder,$(FFMPEG_BLACKLIST_ENCODERS)) \
 	$(if $(CONFIG_BUILD_PATENTED),, \
 		$(call FFMPEG_DISABLE,decoder,$(FFMPEG_PATENTED_DECODERS)) \
 		$(call FFMPEG_DISABLE,muxer,$(FFMPEG_PATENTED_MUXERS)) \
