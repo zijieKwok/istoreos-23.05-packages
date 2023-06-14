@@ -8,69 +8,66 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=x264
-PKG_VERSION:=2019-11-01
+PKG_VERSION:=snapshot-20180401-2245
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
-PKG_SOURCE_VERSION:=7817004df0bf57e1eb83e8ef9c0c407477b59d71
-PKG_SOURCE_URL_FILE:=$(PKG_SOURCE_VERSION).tar.bz2
-PKG_SOURCE_URL:=https://code.videolan.org/videolan/x264/-/archive/
-PKG_HASH:=ab65a42caae256c66f3edc4df060886b5ab2589d087a2e43d4a4df76c55e846a
-
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
+PKG_SOURCE_URL:=https://download.videolan.org/x264/snapshots/
+PKG_MAINTAINER:=Adrian Panella <ianchi74@outlook.com>
+PKG_HASH:=657a915497a5b0ffed3598988657395358cf4dc961db14aebd918b7ffb7c5364
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING
 
+PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
 
-TAR_OPTIONS:=--strip-components 1 $(TAR_OPTIONS)
-TAR_CMD=$(HOST_TAR) -C $(1) $(TAR_OPTIONS)
+TARGET_CFLAGS:=$(filter-out -O%,$(TARGET_CFLAGS)) -std=gnu99 -fPIC -O3 -ffast-math -I.
+MAKE_FLAGS+= LD="$(TARGET_CC) -o" 
 
-TARGET_CFLAGS:=$(filter-out -O%,$(TARGET_CFLAGS))
-MAKE_FLAGS:=$(filter-out LD=%,$(MAKE_FLAGS)) LD="$(TARGET_CC) -o"
+# ARM ASM depends on ARM1156 or later, blacklist earlier or incompatible cores
+# AMD Geode LX and i486 do not have SSE
+CPU_ASM_BLACKLIST:=geode i486 arm920t arm926ej-s arm1136j-s arm1176jzf-s fa526 mpcore xscale \
+		   mips32 24kc 34kc 74kc octeon mips64
 
-# Instead of blacklisting a boatload of platforms just enable
-# optimization where it makes sense (matters) ie ARMv7+ and x86_64
-
-ifneq ($(findstring cortex-a,$(CPU_TYPE)),)
-  CONFIGURE_ARGS += --enable-lto
-  else
-  ifneq ($(CONFIG_TARGET_x86_64),)
-    CONFIGURE_ARGS += --enable-lto
-    ifeq ($(CONFIG_NASM),y)
-      CONFIGURE_VARS+= AS=nasm
-      MAKE_FLAGS+= AS=nasm
-    endif
-    else
-    CONFIGURE_VARS+= AS=
-    MAKE_FLAGS+= AS=
-    CONFIGURE_ARGS += --disable-asm
-  endif
+ifneq ($(CONFIG_SOFT_FLOAT)$(findstring $(call qstrip,$(CONFIG_CPU_TYPE)),$(CPU_ASM_BLACKLIST)),)
+  CONFIGURE_VARS+= AS= 
+  MAKE_FLAGS+= AS= 
+  CONFIGURE_ARGS += --disable-asm
+else
+ifneq ($(CONFIG_TARGET_x86),)
+ifeq ($(CONFIG_YASM),y)
+  CONFIGURE_VARS+= AS=yasm
+  MAKE_FLAGS+= AS=yasm
+else
+  CONFIGURE_VARS+= AS= 
+  MAKE_FLAGS+= AS= 
+  CONFIGURE_ARGS += --disable-asm
+endif
+endif
 endif
 
 CONFIGURE_ARGS += \
-		--disable-cli \
 		--enable-shared \
-		--disable-opencl \
 		--enable-pic \
+		--enable-strip \
+		--disable-cli \
 		--disable-avs \
 		--disable-ffms \
-		--disable-gpac \
 		--disable-lsmash
 
 define Package/libx264
   SECTION:=libs
   CATEGORY:=Libraries
-  TITLE:=H264/AVC free codec library
+  TITLE:=H264/AVC free codec library.
   DEPENDS:=+libpthread @BUILD_PATENTED
-  URL:=https://www.videolan.org/developers/x264.html
+  URL:=http://www.videolan.org/developers/x264.html
 endef
 
 define Package/libx264/description
-  x264 is a free software library for encoding
+  x264 is a free software library for encoding 
   video streams into the H.264/MPEG-4 AVC compression format.
 endef
 
