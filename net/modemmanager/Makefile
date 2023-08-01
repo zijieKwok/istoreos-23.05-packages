@@ -115,6 +115,7 @@ define Package/modemmanager/install
 
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/usb
 	$(INSTALL_DATA) ./files/25-modemmanager-usb $(1)/etc/hotplug.d/usb
+	$(INSTALL_DATA) ./files/24-fibocom-usb $(1)/etc/hotplug.d/usb
 
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/net
 	$(INSTALL_DATA) ./files/25-modemmanager-net $(1)/etc/hotplug.d/net

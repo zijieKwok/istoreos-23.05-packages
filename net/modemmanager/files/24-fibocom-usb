@@ -1,0 +1,46 @@
+#!/bin/sh
+# Copyright (C) 2023 jjm2473@gmail.com
+
+[[ "$ACTION" = bind ]] || exit
+[[ "$PRODUCT" = "2cb7/*" ]] || exit
+
+# FM650
+# GTUSBMODE=36/37 2cb7:0a05 NCM
+# GTUSBMODE=38/39 2cb7:0a06 RNDIS
+# GTUSBMODE=40/41 2cb7:0a07 MBIM
+# only MBIM works
+if [[ "$PRODUCT" = "2cb7/a05/*" || "$PRODUCT" = "2cb7/a06/*" ]]; then
+    if [[ $(cat "/sys${DEVPATH}/bInterfaceNumber") = "02" ]]; then
+        DEVNAME=$(cat /sys${DEVPATH}/tty*/tty/tty*/uevent | grep '^DEVNAME=' | head -1 | cut -d= -f2)
+        GTUSBMODE=40
+    fi
+fi
+
+send_cmd() {
+    echo -ne "$2"'\r\n' >"$1"
+}
+
+send_and_get() {
+    cat "$1" &
+    local pid=$!
+    send_cmd "$1" "$2"
+    sleep 1
+    kill $pid
+}
+
+send_and_ok() {
+    local seconds
+    for seconds in $(seq 0 ${3:-1}); do
+        send_and_get "$1" "$2" | grep -q OK && return 0
+    done
+    return 1
+}
+
+if [[ -n "$DEVNAME" && -n "$GTUSBMODE" && -e "/dev/$DEVNAME" ]]; then
+    logger -t "fibocom" "send AT+GTUSBMODE=$GTUSBMODE to $DEVNAME"
+    sleep 1
+    send_and_ok "/dev/$DEVNAME" "AT" 2 || exit
+    send_and_ok "/dev/$DEVNAME" "AT+GTUSBMODE=$GTUSBMODE" 3 || exit
+    send_cmd "/dev/$DEVNAME" 'AT+CFUN=15'
+    sleep 5
+fi

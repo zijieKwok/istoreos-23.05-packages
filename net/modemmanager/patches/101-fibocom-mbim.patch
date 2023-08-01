@@ -1,0 +1,50 @@
+From: jjm2473 <jjm2473@gmail.com>
+Date: Tue, 1 Aug 2023 14:09:50 +0800
+Subject: [PATCH] supports fibocom FM160/FM650 MBIM
+
+---
+
+Index: modemmanager/plugins/fibocom/77-mm-fibocom-port-types.rules
+===================================================================
+--- a/plugins/fibocom/77-mm-fibocom-port-types.rules
++++ b/plugins/fibocom/77-mm-fibocom-port-types.rules
+@@ -31,6 +31,14 @@ ATTRS{idVendor}=="2cb7", ATTRS{idProduct
+ ATTRS{idVendor}=="2cb7", ATTRS{idProduct}=="0104", ENV{.MM_USBIFNUM}=="02", SUBSYSTEM=="tty", ENV{ID_MM_PORT_TYPE_AT_SECONDARY}="1"
+ ATTRS{idVendor}=="2cb7", ATTRS{idProduct}=="0104", ENV{.MM_USBIFNUM}=="03", ENV{ID_MM_PORT_IGNORE}="1"
+ 
++# Fibocom FM150 (MBIM)
++#  ttyUSB0 (if #2): AT port (Modem)
++#  ttyUSB1 (if #3): QCDM port (DIAG)
++#  ttyUSB2 (if #4): AT port (AT)
++ATTRS{idVendor}=="2cb7", ATTRS{idProduct}=="0111", ENV{.MM_USBIFNUM}=="02", SUBSYSTEM=="tty", ENV{ID_MM_PORT_TYPE_AT_PRIMARY}="1"
++ATTRS{idVendor}=="2cb7", ATTRS{idProduct}=="0111", ENV{.MM_USBIFNUM}=="03", SUBSYSTEM=="tty", ENV{ID_MM_PORT_TYPE_QCDM}="1"
++ATTRS{idVendor}=="2cb7", ATTRS{idProduct}=="0111", ENV{.MM_USBIFNUM}=="04", SUBSYSTEM=="tty", ENV{ID_MM_PORT_TYPE_AT_SECONDARY}="1"
++
+ # Fibocom FM101-GL (MBIM)
+ #  ttyUSB0 (if #2): AT port
+ #  ttyUSB1 (if #3): AT port
+@@ -53,4 +61,24 @@ ATTRS{idVendor}=="2cb7", ATTRS{idProduct
+ ATTRS{idVendor}=="2cb7", ATTRS{idProduct}=="01a4", ENV{.MM_USBIFNUM}=="05", ENV{ID_MM_PORT_IGNORE}="1"
+ ATTRS{idVendor}=="2cb7", ATTRS{idProduct}=="01a4", ENV{.MM_USBIFNUM}=="06", ENV{ID_MM_PORT_IGNORE}="1"
+ 
++# Fibocom FM650 (NCM/RNDIS)
++#  ttyUSB0 (if #2): AT port (AT)
++#  ttyUSB1 (if #3): AT port (Modem)
++#  ttyUSB0 (if #4): QCDM port (DIAG)
++#  ttyUSB3 (if #5): debug port (ignore) (LOG)
++ATTRS{idVendor}=="2cb7", ATTRS{idProduct}=="0a0[56]", ENV{.MM_USBIFNUM}=="02", ENV{ID_MM_PORT_IGNORE}="1"
++ATTRS{idVendor}=="2cb7", ATTRS{idProduct}=="0a0[56]", ENV{.MM_USBIFNUM}=="03", ENV{ID_MM_PORT_IGNORE}="1"
++ATTRS{idVendor}=="2cb7", ATTRS{idProduct}=="0a0[56]", ENV{.MM_USBIFNUM}=="04", ENV{ID_MM_PORT_IGNORE}="1"
++ATTRS{idVendor}=="2cb7", ATTRS{idProduct}=="0a0[56]", ENV{.MM_USBIFNUM}=="05", ENV{ID_MM_PORT_IGNORE}="1"
++
++# Fibocom FM650 (MBIM)
++#  ttyUSB0 (if #2): AT port (AT)
++#  ttyUSB1 (if #3): AT port (Modem)
++#  ttyUSB0 (if #4): QCDM port (DIAG)
++#  ttyUSB3 (if #5): debug port (ignore) (LOG)
++ATTRS{idVendor}=="2cb7", ATTRS{idProduct}=="0a07", ENV{.MM_USBIFNUM}=="02", SUBSYSTEM=="tty", ENV{ID_MM_PORT_TYPE_AT_SECONDARY}="1"
++ATTRS{idVendor}=="2cb7", ATTRS{idProduct}=="0a07", ENV{.MM_USBIFNUM}=="03", SUBSYSTEM=="tty", ENV{ID_MM_PORT_TYPE_AT_PRIMARY}="1"
++ATTRS{idVendor}=="2cb7", ATTRS{idProduct}=="0a07", ENV{.MM_USBIFNUM}=="04", SUBSYSTEM=="tty", ENV{ID_MM_PORT_TYPE_QCDM}="1"
++ATTRS{idVendor}=="2cb7", ATTRS{idProduct}=="0a07", ENV{.MM_USBIFNUM}=="05", ENV{ID_MM_PORT_IGNORE}="1"
++
+ LABEL="mm_fibocom_port_types_end"
