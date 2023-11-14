@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ffmpeg-mpp
 PKG_VERSION:=5.1.git-2023-06-15
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_VERSION:=84a449d56e6a85dd1050fe633aeeaf5398f29ec0
@@ -141,8 +141,7 @@ FFMPEG_CONFIGURE:= \
 	\
 	--disable-lzma \
 	--disable-vaapi \
-	--disable-vdpau \
-	--disable-outdevs
+	--disable-vdpau
 
 ifeq ($(CONFIG_SOFT_FLOAT),y)
 FFMPEG_CONFIGURE+= \
@@ -220,7 +219,7 @@ FFMPEG_CONFIGURE+= \
 --enable-libdrm \
 --enable-librga \
 --enable-rkmpp \
-# --enable-encoder=h264_rkmpp
+# --enable-encoder=h264_rkmpp # we dont need this flag, always build
 
 FFMPEG_CONFIGURE+= $(if $(CONFIG_PACKAGE_fdk-aac),--enable-libfdk-aac)
 
