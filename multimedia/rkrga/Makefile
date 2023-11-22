@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rkrga
 PKG_VERSION:=1.9.1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_VERSION:=039967ece0d41e67310ce88fb354dce6f64f38a7
@@ -54,8 +54,8 @@ CMAKE_OPTIONS += -DCMAKE_BUILD_TYPE=Release \
 	-DCMAKE_BUILD_TARGET=cmake_linux
 
 define Package/rkrga/install
-	$(INSTALL_DIR) $(1)/usr
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib $(1)/usr/
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/librga.so $(1)/usr/lib/
 endef
 
 define Package/rkrga-demo/install
@@ -66,10 +66,10 @@ define Package/rkrga-demo/install
 endef
 
 define Build/InstallDev
+	$(INSTALL_DIR) $(1)/usr
 	$(INSTALL_DIR) $(1)/usr/include
 	$(CP) $(PKG_INSTALL_DIR)/usr/include $(1)/usr/include/rga
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/librga.so $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib $(1)/usr/
 endef
 
 $(eval $(call BuildPackage,rkrga))
