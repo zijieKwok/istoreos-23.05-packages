@@ -7,7 +7,7 @@
 +replace github.com/coreos/go-iptables => ./patched/go-iptables
 +
  require (
- 	filippo.io/mkcert v1.4.4
+ 	filippo.io/mkcert v1.5.4
  	github.com/Microsoft/go-winio v0.6.1
 --- a/patched/go-iptables/iptables/iptables.go
 +++ b/patched/go-iptables/iptables/iptables.go
